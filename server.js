@@ -7,7 +7,7 @@ const contactRouter = require('./controllers/contactController');
 const app = express();
 
 // Middleware
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'https://igamingtext.com'];
 
 app.use(cors({
   origin: function (origin, callback) {
