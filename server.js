@@ -3,11 +3,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const contactRouter = require('./controllers/contactController');
+const blogsRouter = require('./controllers/blogRoutes');
 
 const app = express();
 
 // Middleware
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'https://igamingtext.com', 'https://gamingsms.com'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174', 'https://igamingtext.com', 'https://gamingsms.com'];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -17,9 +18,13 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.use("/uploads", express.static("uploads"));
+
+
 
 app.use(express.json());
 
@@ -33,6 +38,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Routes
 app.use('/api/contact', contactRouter);
+app.use('/api', blogsRouter)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
