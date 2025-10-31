@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const contactRouter = require('./controllers/contactController');
 const blogsRouter = require('./controllers/blogRoutes');
+const chatbotRoutes = require("./controllers/chatbotRoutes");
 
 const app = express();
 
@@ -38,7 +39,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Routes
 app.use('/api/contact', contactRouter);
-app.use('/api', blogsRouter)
+app.use('/api', blogsRouter);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
