@@ -37,6 +37,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
+// Home Route
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "IFSC API is running successfully 🚀" });
+});
+
+
 // Routes
 app.use('/api/contact', contactRouter);
 app.use('/api', blogsRouter);
