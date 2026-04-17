@@ -1,5 +1,5 @@
 const express = require("express");
-const SeoSettings = require("../models/SeoSettings");
+const SeoSettings = require("../models/SEOSettings");
 
 const router = express.Router();
 
