@@ -42,7 +42,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/contact', contactRouter);
 app.use('/api', blogsRouter);
 app.use("/api/chatbot", chatbotRoutes);
-app.use("/api/seo", seoRoutes);
+app.use("/api", seoRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
