@@ -5,6 +5,7 @@ const cors = require('cors');
 const contactRouter = require('./controllers/contactController');
 const blogsRouter = require('./controllers/blogRoutes');
 const chatbotRoutes = require("./controllers/chatbotRoutes");
+const seoRoutes = require("./controllers/seoroute");
 
 const app = express();
 
@@ -37,16 +38,11 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Home Route
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "IFSC API is running successfully 🚀" });
-});
-
-
 // Routes
 app.use('/api/contact', contactRouter);
 app.use('/api', blogsRouter);
 app.use("/api/chatbot", chatbotRoutes);
+app.use("/api/seo", seoRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
