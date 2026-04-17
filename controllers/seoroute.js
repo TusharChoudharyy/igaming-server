@@ -6,7 +6,12 @@ const router = express.Router();
 const ALLOWED_SELECTIONS = ["seoigaming", "seogamingsms"];
 
 function getValidSelection(req) {
-  const selection = String(req.body?.selection || req.query?.selection || "").trim().toLowerCase();
+  const selection = String(
+    req.body?.selection || req.query?.selection || ""
+  )
+    .trim()
+    .toLowerCase();
+
   return ALLOWED_SELECTIONS.includes(selection) ? selection : null;
 }
 
@@ -33,6 +38,7 @@ router.get("/admin/seo-settings", async (req, res) => {
 
     return res.json(doc);
   } catch (err) {
+    console.error("GET SEO settings error:", err);
     return res.status(500).json({ message: "Failed to fetch SEO settings" });
   }
 });
@@ -66,6 +72,7 @@ router.post("/admin/seo-settings", async (req, res) => {
 
     return res.status(201).json(doc);
   } catch (err) {
+    console.error("POST SEO settings error:", err);
     return res.status(500).json({ message: "Failed to create SEO settings" });
   }
 });
@@ -99,19 +106,28 @@ router.put("/admin/seo-settings", async (req, res) => {
 
     return res.json(doc);
   } catch (err) {
+    console.error("PUT SEO settings error:", err);
     return res.status(500).json({ message: "Failed to update SEO settings" });
   }
 });
 
 // DELETE /api/admin/seo-settings?selection=seoigaming
-router.delete("/admin/seo-settings", async (req, res) => {
+// DELETE single keyword /api/admin/seo-settings/keyword?selection=seoigaming&keyword=casino
+router.delete("/admin/seo-settings/keyword", async (req, res) => {
   try {
     const selection = getValidSelection(req);
+    const keyword = String(req.query?.keyword || req.body?.keyword || "").trim();
 
     if (!selection) {
       return res.status(400).json({
         message: "Valid selection is required",
         allowedSelections: ALLOWED_SELECTIONS,
+      });
+    }
+
+    if (!keyword) {
+      return res.status(400).json({
+        message: "Keyword is required",
       });
     }
 
@@ -123,13 +139,34 @@ router.delete("/admin/seo-settings", async (req, res) => {
       });
     }
 
-    await SeoSettings.deleteOne({ _id: doc._id });
+    const existingKeywords = Array.isArray(doc.keywordsArray)
+      ? doc.keywordsArray.map((item) => String(item).trim()).filter(Boolean)
+      : String(doc.commaSeparatedKeywords || "")
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+
+    const filteredKeywords = existingKeywords.filter(
+      (item) => item.toLowerCase() !== keyword.toLowerCase()
+    );
+
+    if (filteredKeywords.length === existingKeywords.length) {
+      return res.status(404).json({
+        message: `Keyword not found: ${keyword}`,
+      });
+    }
+
+    doc.keywordsArray = filteredKeywords;
+    doc.commaSeparatedKeywords = filteredKeywords.join(", ");
+    await doc.save();
 
     return res.json({
-      message: `SEO settings deleted successfully for selection: ${selection}`,
+      message: `Keyword deleted successfully: ${keyword}`,
+      doc,
     });
   } catch (err) {
-    return res.status(500).json({ message: "Failed to delete SEO settings" });
+    console.error("DELETE single keyword error:", err);
+    return res.status(500).json({ message: "Failed to delete keyword" });
   }
 });
 
