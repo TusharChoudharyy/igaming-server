@@ -3,12 +3,36 @@ const router = express.Router();
 const getMulterUploader = require("../middleware/upload");
 const Blog = require("../models/Blogs");
 
-// Multer setup
+// Main blog uploads
 const upload = getMulterUploader("uploads/blogs");
 const cpUpload = upload.fields([
   { name: "featuredImage", maxCount: 1 },
   { name: "bannerImage", maxCount: 1 },
 ]);
+
+// Inline editor image uploads
+const editorImageUpload = getMulterUploader("uploads/blogs/inline");
+const editorImageSingleUpload = editorImageUpload.single("editorImage");
+
+// UPLOAD INLINE EDITOR IMAGE
+router.post("/upload-editor-image", editorImageSingleUpload, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image uploaded" });
+    }
+
+    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/blogs/inline/${req.file.filename}`;
+
+    return res.status(201).json({
+      message: "Editor image uploaded successfully",
+      filename: req.file.filename,
+      url: fileUrl,
+    });
+  } catch (err) {
+    console.error("Error uploading editor image:", err);
+    return res.status(500).json({ error: "Failed to upload editor image" });
+  }
+});
 
 // CREATE BLOG
 router.post("/create", cpUpload, async (req, res) => {
@@ -36,7 +60,7 @@ router.post("/create", cpUpload, async (req, res) => {
       tags: tags ? tags.split(",").map((t) => t.trim()) : [],
       category,
       content,
-      website: JSON.parse(req.body.website || "[]"), // ✅ store array
+      website: JSON.parse(req.body.website || "[]"),
     });
 
     await newBlog.save();
@@ -95,6 +119,7 @@ router.put("/update-blog/:id", cpUpload, async (req, res) => {
       category,
       content,
     } = req.body;
+
     const featuredImage = req.files?.featuredImage?.[0]?.filename;
     const bannerImage = req.files?.bannerImage?.[0]?.filename;
 
@@ -108,7 +133,7 @@ router.put("/update-blog/:id", cpUpload, async (req, res) => {
     blog.tags = tags ? tags.split(",").map((t) => t.trim()) : [];
     blog.category = category;
     blog.content = content;
-    blog.website = JSON.parse(req.body.website || "[]"); // ✅ update field
+    blog.website = JSON.parse(req.body.website || "[]");
 
     if (featuredImage) blog.featuredImage = featuredImage;
     if (bannerImage) blog.bannerImage = bannerImage;
