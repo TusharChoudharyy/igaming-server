@@ -10,7 +10,7 @@ const seoRoutes = require("./controllers/seoroute");
 const app = express();
 
 // Middleware
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174', 'https://igamingtext.com', 'https://gamingsms.com'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174', 'https://igamingtext.com', 'https://gamingsms.com', 'https://swipemedia.net', 'https://www.swipemedia.net', 'https://swipemessage.net', 'https://www.swipemessage.net'];
 
 app.use(cors({
   origin: function (origin, callback) {
